@@ -1,0 +1,217 @@
+Create a professional, production-ready real estate marketplace website called PrimeNest.
+
+PrimeNest must support property buying, selling and renting across India and internationally. Keep the design modern, premium, mobile-friendly, fast and professional. Do not make it look like a demo or basic HTML template.
+
+CORE FEATURES:
+
+1. HOME PAGE
+- PrimeNest professional logo and branding.
+- Premium real-estate hero section.
+- Clear Buy, Rent and Sell Property options.
+- Strong call-to-action buttons.
+- Mobile, tablet and desktop responsive design.
+
+2. PROPERTY SEARCH
+Allow users to search/filter properties by:
+- City
+- Country
+- Maximum Price
+- Property Type
+- Buy / Rent
+- Bedrooms
+- Bathrooms
+- Area
+- Property features
+
+3. PROPERTY LISTINGS
+Every property should support:
+- Property title
+- City
+- Country
+- Exact/general location
+- Sale or Rent
+- Property type
+- Price
+- Area
+- Bedrooms
+- Bathrooms
+- Parking
+- Amenities/features
+- Full property description
+- Multiple property images
+- Property video
+- Owner/agent information
+- WhatsApp enquiry option
+
+4. PROPERTY DETAILS
+Create a professional full property-details page/modal.
+Include:
+- Large property images
+- Image gallery
+- Smooth image preview
+- Slow-motion style image/video preview
+- Image zoom up to 390%
+- Price
+- Location
+- Property specifications
+- Amenities
+- Full description
+- WhatsApp enquiry button
+
+5. LIST PROPERTY
+Allow owners and agents to submit properties.
+Listing form should include:
+- Property title
+- Country
+- City
+- Location
+- Sale/Rent
+- Property type
+- Price
+- Area
+- Bedrooms
+- Bathrooms
+- Parking
+- Amenities
+- Description
+- Property images
+- Property video
+- Contact/enquiry details
+
+6. SUPABASE
+Connect the website to Supabase.
+Use Supabase database for property listings.
+Use proper database structure instead of storing everything inside one field.
+Use Row Level Security (RLS).
+Use secure policies for SELECT, INSERT, UPDATE and DELETE.
+Use only the public/publishable Supabase key in frontend.
+NEVER expose a Supabase service-role/private key.
+Add proper error handling and loading states.
+
+7. USER ACCOUNTS
+Prepare the website for:
+- User registration
+- Login
+- Owner/agent accounts
+- Property management
+- Future verified-agent system
+- Secure ownership of submitted properties
+
+8. WHATSAPP BUSINESS
+Add WhatsApp Business enquiry functionality.
+Users should be able to contact the property owner/PrimeNest through WhatsApp.
+Do not publicly expose the owner's personal phone number.
+Use a configurable official PrimeNest WhatsApp Business number.
+
+9. AI ASSISTANT
+Add a professional PrimeNest AI Assistant.
+It should help users with:
+- Property search
+- Buying questions
+- Renting questions
+- Listing questions
+- Property features
+- Budget/location guidance
+- General real-estate questions
+The interface should look like a real 24/7 AI assistant.
+Do not claim that live AI is connected unless an actual AI API/backend is configured.
+
+10. 2% COMMISSION MODEL
+PrimeNest should support a 2% commission business model.
+Prepare the website/database architecture for future commission calculation, payment processing and transaction records.
+Do not pretend that payment collection is live unless a real payment gateway is connected.
+
+11. SECURITY
+Implement production-focused security:
+- Supabase RLS
+- Input validation
+- XSS-safe output
+- Secure database access
+- No private API keys in frontend
+- Proper authentication architecture
+- Safe image/file handling
+- Error handling
+- Do not expose personal user information unnecessarily
+
+12. SEO
+Add:
+- SEO title
+- Meta description
+- Open Graph metadata
+- Search-engine-friendly structure
+- Proper headings
+- Property-related SEO content
+- Mobile-friendly structure
+- Sitemap/robots configuration where applicable
+
+13. DESIGN
+Use a premium modern real-estate design.
+Use:
+- Clean navigation
+- Professional property cards
+- High-quality visual layout
+- Smooth animations
+- Modern buttons
+- Responsive menus
+- Professional footer
+- Good spacing and typography
+- Mobile-first layout
+
+14. MAIN SECTIONS
+Include:
+- Home
+- Properties
+- Search
+- List Property
+- Services
+- About PrimeNest
+- AI Assistant
+- Contact
+- Footer
+
+15. INTERNATIONAL SUPPORT
+The platform should be designed for:
+- India
+- USA
+- UK
+- UAE
+- Canada
+- Other countries
+
+Support different currencies and international property locations in the architecture.
+
+16. PROPERTY MEDIA
+Property images must support:
+- Gallery
+- Full-screen viewer
+- 390% zoom
+- Smooth zoom controls
+- Responsive image display
+- Video preview
+- Multiple images per property
+
+17. FUTURE SCALABILITY
+Design the system so it can later support:
+- Property verification
+- Agent verification
+- User dashboards
+- Saved properties
+- Favorites
+- Property comparison
+- Notifications
+- Online payments
+- 2% commission tracking
+- Transaction history
+- Reviews
+- Advanced AI search
+- Property recommendations
+- Admin dashboard
+
+IMPORTANT:
+- Keep the PrimeNest name and professional branding.
+- Do not remove important existing features.
+- Do not create a fake/demo-only website.
+- Do not say a feature is live unless it is actually connected and working.
+- Do not expose private Supabase credentials.
+- Make the website ready for real-world deployment through a suitable hosting provider.
+- The final result should be a complete professional PrimeNest real-estate platform, not just a static landing page.
