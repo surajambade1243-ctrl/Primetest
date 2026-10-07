@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PrimeNest — Buy, Sell & Rent Property</title>
+<meta name="description" content="PrimeNest is a property marketplace for buying, selling and renting homes, plots and commercial properties. Contact property owners directly on WhatsApp.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="PrimeNest — Buy, Sell & Rent Property">
+<meta property="og:description" content="Find, buy, sell and rent properties on PrimeNest.">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+body{font-family:Inter,system-ui,sans-serif}.hero{background:linear-gradient(100deg,rgba(2,6,23,.94),rgba(2,6,23,.55)),url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=85') center/cover}.card{transition:.2s}.card:hover{transform:translateY(-4px)}.modal{background:rgba(2,6,23,.7)}.chat{height:390px}
+
+/* PrimeNest property media upgrades */
+.property-media{position:relative;height:250px;overflow:hidden;background:#0f172a;cursor:zoom-in}
+.property-media img{width:100%;height:100%;object-fit:cover;transition:transform 12s ease-in-out}
+.property-media:hover img{transform:scale(1.16)}
+.property-media .media-badge{position:absolute;left:12px;bottom:12px;background:rgba(2,6,23,.72);color:#fff;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;backdrop-filter:blur(5px)}
+.property-details{line-height:1.6}
+.media-modal{background:rgba(2,6,23,.88);backdrop-filter:blur(8px)}
+.viewer-stage{width:min(96vw,1200px);height:min(86vh,760px);display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:18px;background:#020617;position:relative}
+.viewer-stage img{max-width:none;max-height:none;width:auto;height:auto;transform-origin:center center;transition:transform .2s ease}
+.zoom-controls{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;background:rgba(15,23,42,.88);padding:8px;border-radius:14px}
+.zoom-controls button{width:42px;height:42px;border-radius:10px;background:#fff;font-weight:900}
+.detail-modal{background:rgba(2,6,23,.75);backdrop-filter:blur(7px)}
+
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+<nav class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b">
+<div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+<a class="font-black text-2xl text-slate-900" href="#"><i class="fa-solid fa-house-chimney text-emerald-600 mr-2"></i>Prime<span class="text-emerald-600">Nest</span></a>
+<div class="hidden md:flex gap-6 font-semibold">
+<a href="#listings">Properties</a><a href="#sell">List Property</a><a href="#services">Services</a><a href="#about">About</a>
+</div>
+<button onclick="openAI()" class="bg-slate-900 text-white px-4 py-2 rounded-lg font-bold"><i class="fa-solid fa-robot mr-2"></i>AI Assistant</button>
+</div></nav>
+
+<header class="hero text-white">
+<div class="max-w-7xl mx-auto px-4 py-24 md:py-32">
+<div class="max-w-3xl"><span class="text-emerald-300 font-bold">ALL-INDIA & INTERNATIONAL PROPERTY MARKETPLACE</span>
+<h1 class="text-4xl md:text-6xl font-black mt-4 leading-tight">Find. List. Match. Close.</h1>
+<p class="text-lg text-slate-200 mt-5">Search properties, publish your own listing, and get 24/7 AI assistance — without exposing your personal phone number.</p>
+<div class="flex flex-wrap gap-3 mt-8"><a href="#listings" class="bg-emerald-500 px-6 py-3 rounded-lg font-bold">Explore Properties</a><a href="#sell" class="bg-white text-slate-900 px-6 py-3 rounded-lg font-bold">List Your Property</a></div></div>
+</div></header>
+
+<section class="max-w-6xl mx-auto -mt-9 relative px-4">
+<div class="bg-white rounded-2xl shadow-xl p-5 grid md:grid-cols-5 gap-3">
+<input id="q" class="border rounded-lg p-3" placeholder="City, country or keyword">
+<select id="ftype" class="border rounded-lg p-3"><option value="">Any type</option><option>Apartment</option><option>Villa</option><option>House</option><option>Plot</option><option>Commercial</option></select>
+<select id="fdeal" class="border rounded-lg p-3"><option value="">Buy / Rent</option><option>Sale</option><option>Rent</option></select>
+<input id="fmax" type="number" class="border rounded-lg p-3" placeholder="Max price">
+<button onclick="filterListings()" class="bg-emerald-600 text-white rounded-lg font-bold">Search</button>
+</div></section>
+
+<section id="listings" class="max-w-7xl mx-auto px-4 py-20">
+<div class="flex flex-wrap justify-between items-end gap-4 mb-8"><div><p class="text-emerald-600 font-bold">LIVE MARKETPLACE</p><h2 class="text-4xl font-black">Properties</h2><p class="text-slate-500 mt-1">Listings added through the form appear here in this demo.</p></div><button onclick="openSell()" class="bg-emerald-600 text-white px-5 py-3 rounded-lg font-bold">+ Post Property</button></div>
+<div id="grid" class="grid md:grid-cols-3 gap-7"></div>
+</section>
+
+<section id="sell" class="bg-slate-900 text-white py-20">
+<div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+<div><p class="text-emerald-400 font-bold">FOR OWNERS & AGENTS</p><h2 class="text-4xl font-black mt-2">List a property from anywhere.</h2><p class="text-slate-300 mt-4 leading-7">Add location, price, photos and property details. In the production version, each submission can go through verification before becoming public.</p><button onclick="openSell()" class="mt-7 bg-emerald-500 px-6 py-3 rounded-lg font-bold">Start Listing</button></div>
+<div class="bg-white/5 border border-white/10 rounded-2xl p-7"><div class="flex gap-4"><i class="fa-solid fa-globe text-emerald-400 text-3xl"></i><div><b>Global reach</b><p class="text-slate-400">India + other countries</p></div></div><div class="flex gap-4 mt-6"><i class="fa-solid fa-shield-halved text-emerald-400 text-3xl"></i><div><b>Privacy-first contact</b><p class="text-slate-400">Your personal number is not displayed publicly.</p></div></div><div class="flex gap-4 mt-6"><i class="fa-solid fa-robot text-emerald-400 text-3xl"></i><div><b>24/7 AI assistance</b><p class="text-slate-400">AI can answer listing and search questions.</p></div></div></div>
+</div></section>
+
+<section id="services" class="max-w-7xl mx-auto px-4 py-20"><div class="text-center mb-10"><p class="text-emerald-600 font-bold">PLATFORM</p><h2 class="text-4xl font-black">Everything in one place</h2></div>
+<div class="grid md:grid-cols-4 gap-5"><div class="bg-white p-6 rounded-2xl shadow-sm border"><i class="fa-solid fa-magnifying-glass text-emerald-600 text-3xl"></i><h3 class="font-black text-xl mt-4">Smart Search</h3><p class="text-slate-500 mt-2">Search by location, type, deal and budget.</p></div><div class="bg-white p-6 rounded-2xl shadow-sm border"><i class="fa-solid fa-upload text-emerald-600 text-3xl"></i><h3 class="font-black text-xl mt-4">Post Property</h3><p class="text-slate-500 mt-2">Owners and agents can submit listings.</p></div><div class="bg-white p-6 rounded-2xl shadow-sm border"><i class="fa-solid fa-robot text-emerald-600 text-3xl"></i><h3 class="font-black text-xl mt-4">AI Help 24/7</h3><p class="text-slate-500 mt-2">AI answers questions and guides users.</p></div><div class="bg-white p-6 rounded-2xl shadow-sm border"><i class="fa-solid fa-earth-americas text-emerald-600 text-3xl"></i><h3 class="font-black text-xl mt-4">Global</h3><p class="text-slate-500 mt-2">Designed for India and international listings.</p></div></div></section>
+
+<section id="about" class="bg-emerald-600 text-white py-16"><div class="max-w-4xl mx-auto text-center px-4"><h2 class="text-4xl font-black">PrimeNest AI Property Marketplace</h2><p class="mt-4 text-emerald-50">A marketplace concept where property owners, buyers, renters and agents can connect through listings and an AI assistant.</p></div></section>
+
+<footer class="bg-slate-950 text-slate-400 py-10"><div class="max-w-7xl mx-auto px-4 flex justify-between gap-4 flex-wrap"><div><b class="text-white text-xl">Prime<span class="text-emerald-500">Nest</span></b><p class="text-sm mt-2">AI Real Estate Marketplace</p></div><p class="text-sm">© 2026 PrimeNest</p></div></footer>
+
+<!-- Listing modal -->
+<div id="sellModal" class="hidden fixed inset-0 z-[100] modal items-center justify-center p-4"><div class="bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] overflow-auto p-6">
+<div class="flex justify-between"><h2 class="text-2xl font-black">Post Your Property</h2><button onclick="closeSell()" class="text-2xl">×</button></div>
+<p class="text-sm text-slate-500 mt-1">Demo submission. A real public marketplace needs a secure backend/database for automatic global publishing.</p>
+<div class="grid md:grid-cols-2 gap-3 mt-5">
+<input id="name" class="border rounded-lg p-3" placeholder="Property title">
+<input id="city" class="border rounded-lg p-3" placeholder="City / Country">
+<select id="deal" class="border rounded-lg p-3"><option>Sale</option><option>Rent</option></select>
+<select id="ptype" class="border rounded-lg p-3"><option>Apartment</option><option>Villa</option><option>House</option><option>Plot</option><option>Commercial</option></select>
+<input id="price" type="number" class="border rounded-lg p-3" placeholder="Price">
+<input id="size" class="border rounded-lg p-3" placeholder="Area (sq.ft.)"><input id="bedrooms" class="border rounded-lg p-3" placeholder="Bedrooms (e.g. 3 BHK)"><input id="bathrooms" class="border rounded-lg p-3" placeholder="Bathrooms"><input id="parking" class="border rounded-lg p-3" placeholder="Parking">
+<input id="image" class="border rounded-lg p-3 md:col-span-2" placeholder="Image URL (optional)">
+<textarea id="details" class="border rounded-lg p-3 md:col-span-2" rows="4" placeholder="Property details, bedrooms, amenities, etc."></textarea>
+</div>
+<button onclick="addListing()" class="w-full mt-4 bg-emerald-600 text-white p-3 rounded-lg font-bold">Submit Listing</button>
+</div></div>
+
+<!-- AI modal -->
+<div id="aiModal" class="hidden fixed inset-0 z-[100] modal items-center justify-center p-4"><div class="bg-white rounded-2xl max-w-md w-full overflow-hidden">
+<div class="bg-slate-900 text-white p-4 flex justify-between"><b><i class="fa-solid fa-robot text-emerald-400 mr-2"></i>PrimeNest AI Assistant</b><button onclick="closeAI()">×</button></div>
+<div id="chat" class="chat overflow-auto p-4 space-y-3"><div class="bg-slate-100 rounded-xl p-3 text-sm">Hi! I can help you search properties, understand a listing, or prepare a property listing. What do you need?</div></div>
+<div class="p-3 border-t flex gap-2"><input id="aiInput" class="border rounded-lg p-3 flex-1" placeholder="Ask about properties..." onkeydown="if(event.key==='Enter')askAI()"><button onclick="askAI()" class="bg-emerald-600 text-white px-4 rounded-lg"><i class="fa-solid fa-paper-plane"></i></button></div>
+</div></div>
+
+<script>
+const demo=[
+{title:"Modern 3 BHK Apartment",city:"Pune, India",deal:"Sale",type:"Apartment",price:8500000,size:"1450",img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=900&q=85",details:"3 BHK premium apartment in a prime location."},
+{title:"Luxury Family Villa",city:"Goa, India",deal:"Sale",type:"Villa",price:17500000,size:"2800",img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=900&q=85",details:"Spacious villa with modern amenities."},
+{title:"Commercial Office Space",city:"Dubai, UAE",deal:"Rent",type:"Commercial",price:650000,size:"950",img:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85",details:"Business-ready office space."}
+];
+const SUPABASE_URL="https://gvdjklcjljjlvsbiwqvu.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_XoRCpbNf5VMbeGxsPUZJDQ_XhR9CnNn";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let listings=[...demo];
+function parseDbTitle(title){try{const x=JSON.parse(title);if(x&&x.source==="primenest-web")return x.data||x;}catch(e){}return {title:title||"Property",city:"",deal:"Sale",type:"House",price:"",size:"",img:"",details:""};}
+async function loadListings(){try{const {data,error}=await supabaseClient.from("properties").select("id,title").order("id",{ascending:false});if(error)throw error;const remote=(data||[]).map(r=>parseDbTitle(r.title));if(remote.length)listings=remote;render();}catch(e){console.warn("PrimeNest Supabase load failed",e);render();}}
+function money(n){return n>=10000000?"₹"+(n/10000000).toFixed(2)+" Cr":n>=100000?"₹"+(n/100000).toFixed(2)+" L":n?"₹"+Number(n).toLocaleString():"Price on request"}
+function render(arr=listings){
+document.getElementById("grid").innerHTML=arr.map((x,i)=>{
+let fallback='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=88';
+let img=x.img||fallback;
+return `<div class="card bg-white rounded-2xl overflow-hidden shadow-sm border">
+<div class="property-media" onclick="openMedia('${escapeAttr(img)}')" title="Open image viewer">
+<img src="${escapeAttr(img)}" alt="${escapeAttr(x.title||'Property')}" onerror="this.src='${fallback}'">
+<span class="media-badge"><i class="fa-solid fa-expand mr-1"></i> 390% Zoom • Slow View</span>
+</div>
+<div class="p-5">
+<span class="text-xs font-bold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">${escapeHtml(x.deal||'Sale')}</span>
+<h3 class="text-xl font-black mt-4">${escapeHtml(x.title||'New Property')}</h3>
+<p class="text-slate-500 mt-2"><i class="fa-solid fa-location-dot text-emerald-600"></i> ${escapeHtml(x.city||'Location not specified')}</p>
+<div class="flex justify-between mt-5"><b class="text-emerald-600">${money(x.price)}</b><span>${escapeHtml(x.size||"—")} sq.ft.</span></div>
+<button onclick="openDetails(${i}, ${JSON.stringify(arr).replace(/</g,'\u003c')})" class="w-full mt-5 bg-slate-900 text-white py-2.5 rounded-lg font-bold">View Full Details</button>
+<button onclick="openAIWith('Tell me about ${escapeAttr(x.title||'this property')} in ${escapeAttr(x.city||'this location')}.')" class="w-full mt-2 border border-emerald-600 text-emerald-700 py-2.5 rounded-lg font-bold">Ask AI about this</button>
+</div></div>`}).join("")}
+function filterListings(){let q=document.getElementById("q").value.toLowerCase(),t=document.getElementById("ftype").value,d=document.getElementById("fdeal").value,m=Number(document.getElementById("fmax").value)||Infinity;render(listings.filter(x=>(!q||(x.city+x.title+x.details).toLowerCase().includes(q))&&(!t||x.type===t)&&(!d||x.deal===d)&&Number(x.price)<=m))}
+
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function escapeAttr(s){return escapeHtml(s).replace(/`/g,'&#96;')}
+let zoomLevel=1;
+function openMedia(src){
+document.getElementById('viewerImg').src=src; zoomLevel=1; applyZoom();
+let m=document.getElementById('mediaModal');m.classList.remove('hidden');m.classList.add('flex');
+setTimeout(()=>{zoomLevel=1.08;applyZoom();},150);
+}
+function closeMedia(){document.getElementById('mediaModal').classList.add('hidden')}
+function applyZoom(){document.getElementById('viewerImg').style.transform=`scale(${zoomLevel})`}
+function zoomIn(){zoomLevel=Math.min(3.9,+(zoomLevel+0.25).toFixed(2));applyZoom()}
+function zoomOut(){zoomLevel=Math.max(1,+(zoomLevel-0.25).toFixed(2));applyZoom()}
+function resetZoom(){zoomLevel=1;applyZoom()}
+function zoomTo390(){zoomLevel=3.9;applyZoom()}
+function openDetails(index, arr){
+let x=arr[index]; let img=x.img||'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=88';
+let amenities=(x.details||'Modern amenities').split(/[,|]/).map(s=>s.trim()).filter(Boolean);
+let amenityHtml=amenities.slice(0,8).map(a=>`<span class="bg-emerald-50 text-emerald-700 px-3 py-2 rounded-lg text-sm font-semibold">${escapeHtml(a)}</span>`).join('');
+document.getElementById('detailContent').innerHTML=`
+<div class="relative">
+<img src="${escapeAttr(img)}" class="w-full h-72 md:h-96 object-cover cursor-zoom-in" onclick="openMedia('${escapeAttr(img)}')" alt="Property">
+<button onclick="closeDetails()" class="absolute top-4 right-4 bg-slate-900/80 text-white w-11 h-11 rounded-full text-2xl">×</button>
+<div class="absolute bottom-4 left-4 bg-slate-900/75 text-white px-4 py-2 rounded-full font-bold">Slow-motion gallery • 390% zoom</div>
+</div>
+<div class="p-6 md:p-8">
+<div class="flex flex-wrap gap-2"><span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-bold">${escapeHtml(x.deal)}</span><span class="bg-slate-100 px-3 py-1 rounded-full text-sm font-bold">${escapeHtml(x.type)}</span></div>
+<h2 class="text-3xl md:text-4xl font-black mt-4">${escapeHtml(x.title)}</h2>
+<p class="text-slate-500 mt-2"><i class="fa-solid fa-location-dot text-emerald-600"></i> ${escapeHtml(x.city)}</p>
+<div class="grid sm:grid-cols-3 gap-3 mt-6">
+<div class="bg-slate-50 rounded-xl p-4"><div class="text-xs text-slate-500">Price</div><b class="text-xl text-emerald-600">${money(x.price)}</b></div>
+<div class="bg-slate-50 rounded-xl p-4"><div class="text-xs text-slate-500">Area</div><b class="text-xl">${escapeHtml(x.size||'—')} sq.ft.</b></div>
+<div class="bg-slate-50 rounded-xl p-4"><div class="text-xs text-slate-500">Property Type</div><b class="text-xl">${escapeHtml(x.type||'—')}</b></div>
+</div>
+<h3 class="text-xl font-black mt-7">Full Property Details</h3>
+<p class="property-details text-slate-600 mt-2">${escapeHtml(x.details||'Detailed property information will be added by the owner/agent.')}</p>
+<div class="flex flex-wrap gap-2 mt-4">${amenityHtml}</div>
+<div class="grid sm:grid-cols-2 gap-3 mt-7">
+<button onclick="openMedia('${escapeAttr(img)}')" class="bg-slate-900 text-white py-3 rounded-lg font-bold"><i class="fa-solid fa-magnifying-glass-plus mr-2"></i>Open 390% Image Viewer</button>
+<a href="https://wa.me/?text=${encodeURIComponent('Hello PrimeNest, I am interested in '+(x.title||'this property')+' in '+(x.city||'')+'.')}" target="_blank" class="bg-emerald-600 text-white py-3 rounded-lg font-bold text-center"><i class="fa-brands fa-whatsapp mr-2"></i>WhatsApp Enquiry</a>
+</div>
+</div>`;
+let m=document.getElementById('detailModal');m.classList.remove('hidden');m.classList.add('flex');
+}
+function closeDetails(){document.getElementById('detailModal').classList.add('hidden')}
+
+function openSell(){document.getElementById("sellModal").classList.remove("hidden");document.getElementById("sellModal").classList.add("flex")}
+function closeSell(){document.getElementById("sellModal").classList.add("hidden")}
+async function addListing(){let x={title:document.getElementById("name").value||"New Property",city:document.getElementById("city").value||"Location not specified",deal:document.getElementById("deal").value,type:document.getElementById("ptype").value,price:document.getElementById("price").value,size:document.getElementById("size").value,img:document.getElementById("image").value,details:document.getElementById("details").value};try{const payload=JSON.stringify({source:"primenest-web",data:x});const {error}=await supabaseClient.from("properties").insert([{title:payload}]);if(error)throw error;listings.unshift(x);render();closeSell();location.hash="listings";alert("Property submitted successfully.");}catch(e){console.error(e);alert("Property could not be saved to the database. Please check the Supabase RLS policies.");}}
+function openAI(){document.getElementById("aiModal").classList.remove("hidden");document.getElementById("aiModal").classList.add("flex")}
+function closeAI(){document.getElementById("aiModal").classList.add("hidden")}
+function openAIWith(t){openAI();document.getElementById("aiInput").value=t}
+function askAI(){let inp=document.getElementById("aiInput"),q=inp.value.trim();if(!q)return;let c=document.getElementById("chat");c.innerHTML+=`<div class="bg-emerald-50 rounded-xl p-3 text-sm ml-8">${q}</div>`;inp.value="";let a="I can help with property search, listing details, budget, location and general real-estate questions. For live availability, legal documents, exact pricing or booking, the production AI should check verified platform data and hand the request to the relevant person.";if(/list|sell|post/i.test(q))a="To list a property, use “Post Property”. Add the location, deal type, property type, price, area, photos and details. In the production version, the listing should be stored in a secure database and pass verification before publication.";else if(/find|buy|rent|search|flat|villa|house/i.test(q))a="Tell me your location, budget, property type and whether you want to buy or rent. I can then match your requirements against the platform's verified listings.";c.innerHTML+=`<div class="bg-slate-100 rounded-xl p-3 text-sm">${a}</div>`;c.scrollTop=c.scrollHeight}
+loadListings();
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMedia();closeDetails();closeSell();closeAI()}});
+document.getElementById('mediaModal').addEventListener('click',e=>{if(e.target.id==='mediaModal')closeMedia()});
+document.getElementById('detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal')closeDetails()});
+</script>
+
+<!-- Property image viewer -->
+<div id="mediaModal" class="hidden fixed inset-0 z-[200] media-modal items-center justify-center p-3">
+  <button onclick="closeMedia()" class="absolute top-5 right-5 z-10 text-white text-4xl">×</button>
+  <div class="viewer-stage" id="viewerStage">
+    <img id="viewerImg" src="" alt="Property image">
+    <div class="zoom-controls">
+      <button onclick="zoomOut()">−</button>
+      <button onclick="resetZoom()">100%</button>
+      <button onclick="zoomIn()">+</button>
+      <button onclick="zoomTo390()">390%</button>
+    </div>
+  </div>
+</div>
+
+<!-- Full property details -->
+<div id="detailModal" class="hidden fixed inset-0 z-[190] detail-modal items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-5xl w-full max-h-[92vh] overflow-auto">
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+
+<script>
+/* PrimeNest production settings: set your official WhatsApp Business number here (country code, digits only). */
+const PRIMENEST_WHATSAPP = window.PRIMENEST_WHATSAPP || "REPLACE_WITH_WHATSAPP_NUMBER";
+function primeNestWhatsApp(message){
+  if(!PRIMENEST_WHATSAPP || PRIMENEST_WHATSAPP.includes("REPLACE_WITH")){
+    alert("PrimeNest WhatsApp is not configured yet. Add your WhatsApp Business number in PRIMENEST_WHATSAPP before publishing."); return;
+  }
+  const url="https://wa.me/"+PRIMENEST_WHATSAPP+"?text="+encodeURIComponent(message||"Hello PrimeNest, I want to enquire about a property.");
+  window.open(url,"_blank","noopener,noreferrer");
+}
+</script>
+</body></html>
